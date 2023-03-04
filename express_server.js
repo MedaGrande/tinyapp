@@ -30,8 +30,9 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  console.log(req.body);  // Log the POST request body to the console
+  const id = { shortURL: generateRandomString() };
+  res.send(`ShortURL: ${id.shortURL}`); // Respond with randomly generated short url
 });
 
 app.get("/urls/:id", (req, res) => {
