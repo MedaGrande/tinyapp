@@ -30,11 +30,12 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
+  //console.log(req.body);  // Log the POST request body to the console
   let shortURL = generateRandomString();
   let longURL = req.body;
   urlDatabase[shortURL] = longURL.longURL;
-  res.send("Ok"); // Respond with randomly generated short url
+  res.redirect(`/urls/${shortURL}`);
+  res.send("ok"); // Respond with randomly generated short url
 });
 
 app.get("/u/:id", (req, res) => {
