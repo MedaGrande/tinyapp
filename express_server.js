@@ -32,7 +32,7 @@ app.get("/urls", (req, res) => {
 
 //create new url page
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  res.render("urls_new", { username: req.cookies.username });
 });
 
 //create new url
@@ -42,6 +42,12 @@ app.post("/urls", (req, res) => {
   console.log(shortURL);
   urlDatabase[shortURL] = longURL.longURL;
   res.redirect(`/urls/${shortURL}`);
+});
+
+//redirect after submitting new url
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id];
+  res.redirect(longURL);
 });
 
 //delete
@@ -56,14 +62,9 @@ app.post("/urls/:id", (req, res) => {
   res.redirect("/urls");
 });
 
-app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
-  res.redirect(longURL);
-});
-
-//homepage
+//homepage after edit
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id],username: req.cookies.username };
   res.render("urls_show", templateVars);
 })
 
