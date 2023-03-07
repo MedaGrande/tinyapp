@@ -80,6 +80,17 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
+//register
+app.get("/register", (req, res) => {
+  const username = req.cookies.username
+  const templateVars = { username }
+  res.render("urls_register", templateVars);
+});
+//after registration
+app.post("/register", (req, res) => {
+  res.render("/urls");
+});
+
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
