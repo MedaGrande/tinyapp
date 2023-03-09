@@ -11,6 +11,20 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+//users
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
 //parse the body received from form into object
 app.use(express.urlencoded({ extended: true }));
 
@@ -86,9 +100,15 @@ app.get("/register", (req, res) => {
   const templateVars = { username }
   res.render("urls_register", templateVars);
 });
-//after registration
+//append new user to users database and set user_id cookie
 app.post("/register", (req, res) => {
-  res.render("/urls");
+  const newUser = {};
+  newUser['id'] = generateRandomString();
+  newUser['email'] = req.body.email;
+  newUser['password'] = req.body.password;
+  users[newUser['id']] = newUser; 
+  res.cookie('user_id', newUser['id']);
+  res.redirect("/urls");
 });
 
 app.get("/hello", (req, res) => {
