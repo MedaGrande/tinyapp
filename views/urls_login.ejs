@@ -19,16 +19,18 @@
           <% if(user) {%>
             <p style="font-size: 20px;">Logged in as <%= user.email %></p>
             <form method="POST" action="/logout">
-              <button type="submit" class="btn btn-primary">logout</button>
+              <button type="submit" class="btn btn-primary">Logout</button>
             </form>
           <%} else {%>
             <form action="/login" method="POST">
-              <h3><label>login</label></h3>
-              <label>email:</label>
-              <input type="email" name="email" placeholder="abc@xyzcom"><br><br>
-              <label>password:</label>
-              <input type="password" name="password" /><br><br>
-              <button type="submit" class="btn btn-primary">Submit</button>
+              <div class="col-md-2">
+                <h3><label>Login</label></h3>
+                <label>Email address</label>
+                <input type="email" name="email" placeholder="abc@xyzcom"><br><br>
+                <label>Password</label>
+                <input type="password" name="password" placeholder="password" ><br><br>
+                <button type="submit" class="btn btn-primary">Login</button>
+              </div>
             </form>
           <% }%>
         </div>
