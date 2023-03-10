@@ -93,14 +93,14 @@ app.get("/urls/:id", (req, res) => {
 })
 
 //login
-app.post("/login", (req, res) => {
-  res.cookie('username', req.body.user_id);
-  res.redirect("/urls");
+app.get("/login", (req, res) => {
+  const templateVars = { user: users[req.cookies.user_id] }
+  res.render("urls_login", templateVars);
 });
 
 //logout
 app.post("/logout", (req, res) => {
-  res.clearCookie('username', req.body.user_id);
+  res.clearCookie('user_id', req.body.user_id);
   res.redirect("/urls");
 });
 
