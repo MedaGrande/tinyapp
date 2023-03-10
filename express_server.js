@@ -25,6 +25,16 @@ const users = {
   },
 };
 
+//check if user is already registered
+const getUserByEmail = (email) => {
+  for (const user in users) {
+    if (users[user].email === email) {
+      return users[user];
+    }
+  }
+  return null;
+}
+
 //parse the body received from form into object
 app.use(express.urlencoded({ extended: true }));
 
@@ -38,15 +48,15 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-//renders shortURL & longURL to browser; add username after login
+//renders shortURL & longURL to browser; add username after login/username replace with user_id
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies.username };
+  const templateVars = { urls: urlDatabase, user: users[req.cookies.user_id] };
   res.render("urls_index", templateVars);
 })
 
 //create new url page
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new", { username: req.cookies.username });
+  res.render("urls_new", { user: users[req.cookies.user_id] });
 });
 
 //create new url
@@ -78,43 +88,55 @@ app.post("/urls/:id", (req, res) => {
 
 //homepage after edit
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id],username: req.cookies.username };
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], user: users[req.cookies.user_id] };
   res.render("urls_show", templateVars);
 })
 
 //login
 app.post("/login", (req, res) => {
-  res.cookie('username', req.body.username);
+  res.cookie('username', req.body.user_id);
   res.redirect("/urls");
 });
 
 //logout
 app.post("/logout", (req, res) => {
-  res.clearCookie('username', req.body.urername);
+  res.clearCookie('username', req.body.user_id);
   res.redirect("/urls");
 });
 
 //register
 app.get("/register", (req, res) => {
-  const username = req.cookies.username
-  const templateVars = { username }
+  const templateVars = { user: users[req.cookies.user_id] }
   res.render("urls_register", templateVars);
 });
+
 //append new user to users database and set user_id cookie
 app.post("/register", (req, res) => {
+  if (!(req.body.email) || !(req.body.password)) {
+    res.status(400);
+    res.send('BadRequest: 400');
+  }
+
+  const status = getUserByEmail(req.body.email);
+  if (status) {
+  res.status(400);
+  res.send('BadRequest: 400 / Already Registered');
+  } else {
   const newUser = {};
   newUser['id'] = generateRandomString();
   newUser['email'] = req.body.email;
   newUser['password'] = req.body.password;
-  users[newUser['id']] = newUser; 
+  users[newUser.id] = newUser; 
   res.cookie('user_id', newUser['id']);
   res.redirect("/urls");
+  }
 });
 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+//generate random id
 function generateRandomString() {
   return Math.random().toString(36).slice(2, 8);
 };
