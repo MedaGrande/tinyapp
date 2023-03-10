@@ -17,10 +17,14 @@
         <% if(user) {%>
           <p style="font-size: 20px;">Logged in as <%= user.email %></p>
           <form method="POST" action="/logout">
-          <button type="submit" class="btn btn-primary">logout</button></form>
+          <button type="submit" class="btn btn-primary">Logout</button></form>
         <%} else {%>
-          <h5><a href="/login">Login</a></h5>
-          <h5><a href="/register">Register</a></h5>
+          <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+              <a class="nav-item nav-link" href="/login">Login</a>
+              <a class="nav-item nav-link" href="/register">Register</a>
+            </div>
+          </div>
         <% }%>
       </div>
     </div>
