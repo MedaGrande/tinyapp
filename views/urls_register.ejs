@@ -14,14 +14,15 @@
 <body>
   <%- include('partials/_header'); %> 
     <main style="margin: 1em;">
-      <!-- <h3>My URLs</h3> -->
+      <h3>Create Account</h3>
       <form action="/register" method="POST">
-        <h3><label>Register</label></h3>
-        <label>email:</label>
+        <div class="col-md-2">
+        <label>Email address</label>
         <input type="email" name="email" placeholder="xyz@abc.com" ><br><br>
-        <label>password:</label>
-        <input type="password" name="password" /><br><br>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <label>Password:</label>
+        <input type="password" name="password" placeholder="password"/><br><br>
+        <button type="submit" class="btn btn-primary">Register</button>
+      </div>
       </form>
     </main>
     <!-- Bootstrap JS -->
