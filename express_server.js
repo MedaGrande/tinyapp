@@ -63,7 +63,6 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   let longURL = req.body;
-  console.log(shortURL);
   urlDatabase[shortURL] = longURL.longURL;
   res.redirect(`/urls/${shortURL}`);
 });
@@ -92,16 +91,28 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 })
 
-//login
+//login page
 app.get("/login", (req, res) => {
   const templateVars = { user: users[req.cookies.user_id] }
   res.render("urls_login", templateVars);
 });
 
+//login 
+app.post("/login", (req, res) => {
+  const status = getUserByEmail(req.body.email);
+  if (status === null || status.email !== req.body.email || status.password !== req.body.password) {
+    res.status(403);
+    res.send('BadRequest: 403');
+  } else {
+    res.cookie('user_id', status['id']);
+    res.redirect("/urls");
+  }
+})
+
 //logout
 app.post("/logout", (req, res) => {
   res.clearCookie('user_id', req.body.user_id);
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 //register
@@ -116,7 +127,6 @@ app.post("/register", (req, res) => {
     res.status(400);
     res.send('BadRequest: 400');
   }
-
   const status = getUserByEmail(req.body.email);
   if (status) {
   res.status(400);
