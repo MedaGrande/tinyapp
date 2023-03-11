@@ -1,11 +1,17 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
-const cookieParser = require('cookie-parser')
+const cookieSession = require("cookie-session");
+const cookieParser = require("cookie-parser");
 const bcrypt = require("bcryptjs");
 
 app.set("view engine", "ejs");
 app.use(cookieParser());
+
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2'],
+}))
 
 const urlDatabase = {
   b6UTxQ: {
@@ -45,10 +51,10 @@ const urlsForUser = (id) => {
 }
 
 //check if user is already registered
-const getUserByEmail = (email) => {
+const getUserByEmail = (email, users) => {
   for (const user in users) {
-    if (users[user].email === email) {
-      return users[user];
+    if (user.email === email) {
+      return user;
     }
   }
   return null;
@@ -69,18 +75,18 @@ app.get("/urls.json", (req, res) => {
 
 //renders shortURL & longURL to browser; add username after login; replace username  with user_id
 app.get("/urls", (req, res) => {
-  const userURLS = urlsForUser(req.cookies.user_id);
+  const userURLS = urlsForUser(req.session.user_id);
   const templateVars = {
     urls: userURLS,
-    user: users[req.cookies.user_id]
+    user: users[req.session.user_id]
   };
   res.render("urls_index", templateVars);
 })
 
 //create new url page when logged in
 app.get("/urls/new", (req, res) => {
-  if (req.cookies.user_id) {
-    res.render("urls_new", { user: users[req.cookies.user_id] });
+  if (req.session.user_id) {
+    res.render("urls_new", { user: users[req.session.user_id] });
   } else {
     res.redirect("/login");
   }
@@ -88,7 +94,7 @@ app.get("/urls/new", (req, res) => {
 
 //create new url when logged in
 app.post("/urls", (req, res) => {
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
   const templateVars = { user: users[userID] };
   if (userID) {
     const shortURL = generateRandomString();
@@ -120,7 +126,7 @@ app.get("/u/:id", (req, res) => {
 
 //delete
 app.post("/urls/:id/delete", (req, res) => {
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
   if (userID) {
     delete urlDatabase[req.params.id];
     res.redirect("/urls");  
@@ -132,7 +138,7 @@ app.post("/urls/:id/delete", (req, res) => {
 
 //edit
 app.post("/urls", (req, res) => {
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
   const shortID = req.params.id;
   console.log(userID);
   if (userID) {
@@ -146,9 +152,9 @@ app.post("/urls", (req, res) => {
 
 //homepage after edit
 app.get("/urls/:id", (req, res) => {
-  const userURLS = urlsForUser(req.cookies.user_id);
+  const userURLS = urlsForUser(req.session.user_id);
   const shortID = req.params.id;
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
   console.log(shortID);
   const templateVars = {
     id: shortID,
@@ -165,7 +171,7 @@ app.get("/urls/:id", (req, res) => {
 
 //login page
 app.get("/login", (req, res) => {
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
   const templateVars = { user: users[userID] }
   if (userID) {
     res.redirect("/urls")
@@ -182,20 +188,20 @@ app.post("/login", (req, res) => {
     res.status(403);
     res.send('BadRequest: 403');
   } else {
-    res.cookie('user_id', status['id']);
+    req.session.user_id = status['id'];
     res.redirect("/urls");
   }
 })
 
 //logout
 app.post("/logout", (req, res) => {
-  res.clearCookie('user_id', req.body.user_id);
+  req.session = null
   res.redirect("/login");
 });
 
 //register
 app.get("/register", (req, res) => {
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
   const templateVars = { user: users[userID] }
   if (userID) {
     res.redirect("/urls");
@@ -221,7 +227,7 @@ app.post("/register", (req, res) => {
   newUser['email'] = req.body.email;
   newUser['password'] = bcrypt.hashSync(req.body.password, 10);
   users[newUser.id] = newUser; 
-  res.cookie('user_id', newUser['id']);
+  req.session.user_id = newUser['id'];
   res.redirect("/urls");
   }
 });
