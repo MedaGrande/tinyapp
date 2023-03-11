@@ -2,14 +2,10 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const cookieParser = require('cookie-parser')
+const bcrypt = require("bcryptjs");
 
 app.set("view engine", "ejs");
 app.use(cookieParser());
-
-// const urlDatabase = {
-//   "b2xVn2": "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com"
-// };
 
 const urlDatabase = {
   b6UTxQ: {
@@ -165,7 +161,6 @@ app.get("/urls/:id", (req, res) => {
     res.status(400);
     res.send('BadRequest: 400');
    }
-    
 })
 
 //login page
@@ -179,11 +174,11 @@ app.get("/login", (req, res) => {
   }
 });
 
-
 //login 
 app.post("/login", (req, res) => {
   const status = getUserByEmail(req.body.email);
-  if (status === null || status.email !== req.body.email || status.password !== req.body.password) {
+  const password = req.body.password;
+  if (status === null || status.email !== req.body.email || !bcrypt.compareSync(password, status.password)) {
     res.status(403);
     res.send('BadRequest: 403');
   } else {
@@ -224,7 +219,7 @@ app.post("/register", (req, res) => {
   const newUser = {};
   newUser['id'] = generateRandomString();
   newUser['email'] = req.body.email;
-  newUser['password'] = req.body.password;
+  newUser['password'] = bcrypt.hashSync(req.body.password, 10);
   users[newUser.id] = newUser; 
   res.cookie('user_id', newUser['id']);
   res.redirect("/urls");
