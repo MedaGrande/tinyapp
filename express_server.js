@@ -54,23 +54,40 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 })
 
-//create new url page
+//create new url page when logged in
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new", { user: users[req.cookies.user_id] });
+  if (req.cookies.user_id) {
+    res.render("urls_new", { user: users[req.cookies.user_id] });
+  } else {
+    res.redirect("/login");
+  }
 });
 
-//create new url
+//create new url when logged in
 app.post("/urls", (req, res) => {
-  let shortURL = generateRandomString();
-  let longURL = req.body;
-  urlDatabase[shortURL] = longURL.longURL;
-  res.redirect(`/urls/${shortURL}`);
+  const templateVars = { user: users[req.cookies.user_id]}
+  if (users[req.cookies.user_id]) {
+    let shortURL = generateRandomString();
+    let longURL = req.body;
+    urlDatabase[shortURL] = longURL.longURL;
+    res.redirect(`/urls/${shortURL}`);
+  } else {
+    res.status(403);
+    res.send('BadRequest: 403');
+  }
 });
 
-//redirect after submitting new url
+//redirect to website using existing shortenedURL id
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
-  res.redirect(longURL);
+  const urlIDs = Object.keys(urlDatabase);
+  for (const urlID of urlIDs) {
+    if (urlID === req.params.id) {
+      const longURL = urlDatabase[req.params.id];
+      return res.redirect(longURL);
+    };
+  }
+  res.status(403);
+  res.send('BadRequest: 403');
 });
 
 //delete
@@ -94,8 +111,13 @@ app.get("/urls/:id", (req, res) => {
 //login page
 app.get("/login", (req, res) => {
   const templateVars = { user: users[req.cookies.user_id] }
-  res.render("urls_login", templateVars);
+  if (templateVars.user) {
+    res.redirect("/urls")
+  } else {
+    res.render("urls_login", templateVars);
+  }
 });
+
 
 //login 
 app.post("/login", (req, res) => {
@@ -118,8 +140,13 @@ app.post("/logout", (req, res) => {
 //register
 app.get("/register", (req, res) => {
   const templateVars = { user: users[req.cookies.user_id] }
-  res.render("urls_register", templateVars);
+  if (templateVars.user) {
+    res.redirect("/urls");
+  } else {
+    res.render("urls_register", templateVars);
+  }
 });
+
 
 //append new user to users database and set user_id cookie
 app.post("/register", (req, res) => {
