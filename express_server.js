@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
+const methodOverride = require("method-override");
 const {
   getUserByEmail,
   urlsForUser,
@@ -22,7 +23,9 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
-//a get method demo
+app.use(methodOverride('_method')) //method override so as to use PUT & DELETE
+
+//landing page
 app.get("/", (req, res) => {
   if (req.session.user_id) {
     res.redirect("/urls");
@@ -114,10 +117,6 @@ app.get("/register", (req, res) => {
   }
 });
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
 //create new url when logged in only
 app.post("/urls", (req, res) => {
   const userID = req.session.user_id;
@@ -136,7 +135,7 @@ app.post("/urls", (req, res) => {
 });
 
 //delete
-app.post("/urls/:id/delete", (req, res) => {
+app.delete("/urls/:id/delete", (req, res) => {
   const userID = req.session.user_id;
   if (userID) {
     delete urlDatabase[req.params.id];
@@ -148,7 +147,7 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 //edit
-app.post("/urls/:id", (req, res) => {
+app.put("/urls/:id", (req, res) => {
   const userID = req.session.user_id;
   const shortID = req.params.id;
   if (userID) {
