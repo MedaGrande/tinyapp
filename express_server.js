@@ -24,11 +24,10 @@ app.use(cookieSession({
 
 //a get method demo
 app.get("/", (req, res) => {
-  
   if (req.session.user_id) {
-    res.redirect("/login");
-  } else {
     res.redirect("/urls");
+  } else {
+    res.redirect("/login");
   }
 });
 
@@ -66,7 +65,7 @@ app.get("/u/:id", (req, res) => {
     }
   }
   res.status(403);
-  res.send('BadRequest: 403');
+  return res.send('BadRequest: 403');
 });
 
 //urls/shortURL
@@ -77,7 +76,7 @@ app.get("/urls/:id", (req, res) => {
 
   if (!userURLS[shortID] || !userID) {
     res.status(400);
-    res.send('BadRequest: Either shortURL does not exist or it does not  belong to you or you need to login!');
+    return res.send('BadRequest: Either shortURL does not exist or it does not  belong to you or you need to login!');
   }
 
   if (userID === userURLS[shortID].userID) {
@@ -89,7 +88,7 @@ app.get("/urls/:id", (req, res) => {
     res.render("urls_show", templateVars);
   } else {
     res.status(400);
-    res.send('BadRequest: 400');
+    return res.send('BadRequest: 400');
   }
 });
 
@@ -122,7 +121,6 @@ app.get("/hello", (req, res) => {
 //create new url when logged in only
 app.post("/urls", (req, res) => {
   const userID = req.session.user_id;
-  const templateVars = { user: users[userID] };
   if (userID) {
     const shortURL = generateRandomString();
     const longURL = req.body.longURL;
@@ -133,7 +131,7 @@ app.post("/urls", (req, res) => {
     res.redirect("/urls");
   } else {
     res.status(403);
-    res.send('BadRequest: 403');
+    return res.send('You need to be logged in!');
   }
 });
 
@@ -145,7 +143,7 @@ app.post("/urls/:id/delete", (req, res) => {
     res.redirect("/urls");
   } else {
     res.status(400);
-    res.send('You cannot edit or delete someone\'s URL!');
+    return res.send('You cannot edit or delete someone\'s URL!');
   }
 });
 
@@ -158,7 +156,7 @@ app.post("/urls/:id", (req, res) => {
     res.redirect("/urls");
   } else {
     res.status(400);
-    res.send('You cannot edit or delete someone\'s URL!');
+    return res.send('You cannot edit or delete someone\'s URL!');
   }
 });
 
@@ -169,7 +167,7 @@ app.post("/login", (req, res) => {
 
   if (!status || !(bcrypt.compareSync(password, users[status].password))) {
     res.status(403);
-    res.send('BadRequest: 403');
+    return res.send('BadRequest: 403');
   } else {
     req.session.user_id = users[status]['id'];
     res.redirect("/urls");
@@ -184,9 +182,13 @@ app.post("/logout", (req, res) => {
 
 //append new user to users database and set user_id cookie
 app.post("/register", (req, res) => {
-  if (!(req.body.email) || !(req.body.password)) {
+  if (!(req.body.email)) {
     res.status(400);
-    res.send('BadRequest: 400');
+    return res.send('Email not provided!');
+  }
+  if (!(req.body.password)) {
+    res.status(400);
+    return res.send('Password not provided!');
   }
 
   const status = getUserByEmail(req.body.email, users);
@@ -194,7 +196,7 @@ app.post("/register", (req, res) => {
 
   if (status) {
     res.status(400);
-    res.send('BadRequest: 400 / Already Registered');
+    return res.send('BadRequest: 400 / Already Registered');
   } else {
     const newUser = {};
     newUser['id'] = generateRandomString();
