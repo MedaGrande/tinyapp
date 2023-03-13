@@ -13,8 +13,7 @@
 
 <body>
   <%- include('partials/_header'); %>
-    <main style="margin: 1em;">
-      <div class="col-4">
+    <main style="margin: 1em;">    
         <div class="nav-tem nav-link">
           <% if(user) {%>
             <p style="font-size: 20px;">Logged in as <%= user.email %></p>
@@ -26,15 +25,15 @@
               <div class="col-md-2">
                 <h3><label>Login</label></h3>
                 <label>Email address</label>
-                <input type="email" name="email" placeholder="abc@xyzcom"><br><br>
+                <input type="email"name="email"placeholder="abc@xyzcom"><br><br>
                 <label>Password</label>
-                <input type="password" name="password" placeholder="password" ><br><br>
+                <input type="password" name="password" placeholder="password">
+                <br><br>
                 <button type="submit" class="btn btn-primary">Login</button>
               </div>
             </form>
           <% }%>
         </div>
-      </div>
       
     </main>
     <!-- Bootstrap JS -->
