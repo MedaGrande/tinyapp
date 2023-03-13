@@ -145,7 +145,7 @@ app.post("/urls/:id/delete", (req, res) => {
     res.redirect("/urls");
   } else {
     res.status(400);
-    res.send('BadRequest: 400');
+    res.send('You cannot edit or delete someone\'s URL!');
   }
 });
 
@@ -158,7 +158,7 @@ app.post("/urls/:id", (req, res) => {
     res.redirect("/urls");
   } else {
     res.status(400);
-    res.send('BadRequest: 400');
+    res.send('You cannot edit or delete someone\'s URL!');
   }
 });
 
